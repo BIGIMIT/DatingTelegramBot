@@ -15,13 +15,9 @@ public class Program
 {
     private static async Task Main(string[] args)
     {
-        var botClient = new TelegramBotClient("");
-
-        var configuration = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: false)
-            .Build();
-
+        var configurationService = new ConfigurationService();
+        var configuration = configurationService.GetConfiguration();
+        var botClient = new TelegramBotClient(configuration["BotConfig:Token"]);
 
         var host = Host.CreateDefaultBuilder(args)
             .ConfigureServices((context, services) =>
