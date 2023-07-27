@@ -4,7 +4,7 @@ namespace DatingTelegramBot.Services;
 
 public class ConfigurationService
 {
-    public IConfiguration GetConfiguration()
+    public static IConfiguration GetConfiguration()
     {
         return new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())

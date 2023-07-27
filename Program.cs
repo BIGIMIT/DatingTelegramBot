@@ -2,7 +2,6 @@
 using DatingTelegramBot.Models;
 using DatingTelegramBot.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Telegram.Bot;
@@ -11,13 +10,17 @@ using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
+namespace DatingTelegramBot;
+
 public class Program
 {
     private static async Task Main(string[] args)
     {
         var configurationService = new ConfigurationService();
-        var configuration = configurationService.GetConfiguration();
+        var configuration = ConfigurationService.GetConfiguration();
+#pragma warning disable CS8604 // Possible null reference argument.
         var botClient = new TelegramBotClient(configuration["BotConfig:Token"]);
+#pragma warning restore CS8604 // Possible null reference argument.
 
         var host = Host.CreateDefaultBuilder(args)
             .ConfigureServices((context, services) =>
@@ -29,14 +32,29 @@ public class Program
 
         // Создаем обработчики для различных типов сообщений
         var startHandler = host.Services.GetRequiredService<StartHandler>();
+        var agreeHandler = host.Services.GetRequiredService<AgreeHandler>();
+        var createAccountHandler = host.Services.GetRequiredService<CreateAccountHandler>();
+        var accountNameHandler = host.Services.GetRequiredService<AccountNameHandler>();
+        var accountAgeHandler = host.Services.GetRequiredService<AccountAgeHandler>();
+        var accountGenderHandler = host.Services.GetRequiredService<AccountGenderHandler>();
+        var accountPreferredGenderHandler = host.Services.GetRequiredService<AccountPreferredGenderHandler>();
+        var accountDescriptionHandler = host.Services.GetRequiredService<AccountDescriptionHandler>();
+        var accountPhotoHandler = host.Services.GetRequiredService<AccountPhotoHandler>();
         var defaultHandler = host.Services.GetRequiredService<DefaultHandler>();
 
 
-        startHandler.SetNextHandler(defaultHandler);
+        startHandler.SetNextHandler(agreeHandler);
+        agreeHandler.SetNextHandler(createAccountHandler);
+        createAccountHandler.SetNextHandler(accountNameHandler);
+        accountNameHandler.SetNextHandler(accountAgeHandler);
+        accountAgeHandler.SetNextHandler(accountGenderHandler);
+        accountGenderHandler.SetNextHandler(accountPreferredGenderHandler);
+        accountPreferredGenderHandler.SetNextHandler(accountDescriptionHandler);
+        accountDescriptionHandler.SetNextHandler(accountPhotoHandler);
+        accountPhotoHandler.SetNextHandler(defaultHandler);
 
 
         using CancellationTokenSource cts = new();
-
         ReceiverOptions receiverOptions = new()
         {
             AllowedUpdates = Array.Empty<UpdateType>()
@@ -47,7 +65,6 @@ public class Program
             pollingErrorHandler: HandlePollingErrorAsync,
             receiverOptions: receiverOptions,
             cancellationToken: cts.Token
-
         );
 
         var me = await botClient.GetMeAsync();
@@ -63,19 +80,24 @@ public class Program
             // Only process Message updates: https://core.telegram.org/bots/api#message
             if (update.Message is not { } message)
                 return;
-            // Only process text messages
-            if (message.Text is not { } messageText)
-                return;
-
             var chatId = message.Chat.Id;
-
-            Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
+            // Only process text messages
+            if (message.Text == null && message.Photo == null)
+                return;
+            if (message.Text != null)
+                Console.WriteLine($"Received a '{message.Text}' message in chat {chatId}.");
+            else if (message.Photo != null)
+                Console.WriteLine($"Received a '{message.Photo.Last().FileId}' message in chat {chatId}.");
 
             var dbContextFactory = host.Services.GetRequiredService<IDbContextFactory<ApplicationDbContext>>();
             using var context = dbContextFactory.CreateDbContext();
             var user = await context.Users.FirstOrDefaultAsync(u => u.ChatId == chatId, cancellationToken);
             await startHandler.HandleAsync(user, botClient, update, cancellationToken);
+            return;
+
+
         }
+
 
 
         Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)

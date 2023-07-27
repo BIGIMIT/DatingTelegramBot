@@ -14,6 +14,14 @@ public static class DIConfig
 
         // Регистрируем обработчики
         services.AddTransient<StartHandler>();
+        services.AddTransient<AgreeHandler>();
+        services.AddTransient<CreateAccountHandler>();
+        services.AddTransient<AccountNameHandler>();
+        services.AddTransient<AccountAgeHandler>();
+        services.AddTransient<AccountGenderHandler>();
+        services.AddTransient<AccountPreferredGenderHandler>();
+        services.AddTransient<AccountDescriptionHandler>();
+        services.AddTransient<AccountPhotoHandler>();
         services.AddTransient<DefaultHandler>();
     }
 }

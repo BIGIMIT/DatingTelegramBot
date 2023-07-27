@@ -11,6 +11,8 @@ public class User
     public string? City { get; set; }
     public int Age { get; set; }
     public string? Description { get; set; }
+    public string? Gender { get; set; }
+    public string? PreferGender { get; set; }
     public bool TurnOff { get; set; }
     public string? CurrentHandler { get; set; }
     public List<Photo>? Photos { get; set; }

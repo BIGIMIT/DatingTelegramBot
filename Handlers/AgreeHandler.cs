@@ -5,16 +5,17 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace DatingTelegramBot.Handlers;
-public class StartHandler : MessageHandler
+
+public class AgreeHandler : MessageHandler
 {
     private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
 
-    public StartHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
+    public AgreeHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
     {
         _contextFactory = contextFactory;
     }
 
-    public override string? Name { get; } = "StartHandler";
+    public override string? Name { get; } = "AgreeHandler";
 
     public override async Task HandleAsync(Models.User? user, ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
@@ -28,28 +29,14 @@ public class StartHandler : MessageHandler
 
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
             long chatId = update.Message.Chat.Id;
-            
-            if (user != null)
-            {
-                user.CurrentHandler = _nextHandler.Name;
-                context.Users.Update(user);
-                await context.SaveChangesAsync(cancellationToken);
-            }
-            else
-            {
-                var newUser = new Models.User
-                {
-                    ChatId = chatId,
-                    CurrentHandler = _nextHandler.Name,
-                    TurnOff = true,
-                };
-                await context.Users.AddAsync(newUser, cancellationToken);
-                await context.SaveChangesAsync(cancellationToken);
-            }
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
+
+            user.CurrentHandler = _nextHandler.Name;
+            context.Users.Update(user);
+            await context.SaveChangesAsync(cancellationToken);
+
             ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
             {
-                new KeyboardButton[] { "Continue" },
+                new KeyboardButton[] { "I agree" },
             })
             {
                 ResizeKeyboard = true
@@ -57,9 +44,10 @@ public class StartHandler : MessageHandler
 
             await botClient.SendTextMessageAsync(
                 chatId: chatId,
-                text: "Welcome",
+                text: "Accept the agreement",
                 replyMarkup: replyKeyboardMarkup,
                 cancellationToken: cancellationToken);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
         
 
     }

@@ -20,7 +20,11 @@ public abstract class MessageHandler
         {
             return true;
         }
-        else if (user != null && user.CurrentHandler == Name)
+        else if (user != null && user.CurrentHandler == Name && Name == "AccountPhotoHandler" && update?.Message?.Photo != null)
+        {
+            return true;
+        }
+        else if (user != null && user.CurrentHandler == Name && update?.Message?.Text != null)
         {
             return true;
         }
@@ -35,19 +39,6 @@ public abstract class MessageHandler
         {
             // Если этот обработчик не может обработать запрос, передать его следующему обработчику
             await _nextHandler.HandleAsync(user, botClient, update, cancellationToken);
-        }
-    }
-    public async Task UpdateAsync(Models.User user, ApplicationDbContext context)
-    {
-        try
-        {
-            context.Users.Update(user);
-            await context.SaveChangesAsync();
-        }
-        catch (DbUpdateException ex)
-        {
-            await Console.Out.WriteLineAsync(ex.Message);
-            // Обработка исключения, связанного с базой данных
         }
     }
 

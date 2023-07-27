@@ -5,7 +5,14 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <UserSecretsId>157dca7c-3bdb-4870-93d9-837e1367e992</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="UsersPhotos\**" />
+    <EmbeddedResource Remove="UsersPhotos\**" />
+    <None Remove="UsersPhotos\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.9" />
