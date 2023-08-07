@@ -1,4 +1,6 @@
 ﻿using DatingTelegramBot.Handlers;
+using DatingTelegramBot.Handlers.Account;
+using DatingTelegramBot.Handlers.Searching;
 using DatingTelegramBot.Models;
 using DatingTelegramBot.Services;
 using Microsoft.EntityFrameworkCore;
@@ -40,6 +42,9 @@ public class Program
         var accountPreferredGenderHandler = host.Services.GetRequiredService<AccountPreferredGenderHandler>();
         var accountDescriptionHandler = host.Services.GetRequiredService<AccountDescriptionHandler>();
         var accountPhotoHandler = host.Services.GetRequiredService<AccountPhotoHandler>();
+        var accountViewOrComplete = host.Services.GetRequiredService<AccountViewOrComplete>();
+        var sendUserProfileHandler = host.Services.GetRequiredService<SendUserProfileHandler>();
+        var startSearching = host.Services.GetRequiredService<StartSearching>();
         var defaultHandler = host.Services.GetRequiredService<DefaultHandler>();
 
 
@@ -51,7 +56,10 @@ public class Program
         accountGenderHandler.SetNextHandler(accountPreferredGenderHandler);
         accountPreferredGenderHandler.SetNextHandler(accountDescriptionHandler);
         accountDescriptionHandler.SetNextHandler(accountPhotoHandler);
-        accountPhotoHandler.SetNextHandler(defaultHandler);
+        accountPhotoHandler.SetNextHandler(accountViewOrComplete);
+        accountViewOrComplete.SetNextHandler(sendUserProfileHandler);
+        sendUserProfileHandler.SetNextHandler(startSearching);
+        startSearching.SetNextHandler(defaultHandler);
 
 
         using CancellationTokenSource cts = new();
@@ -84,14 +92,16 @@ public class Program
             // Only process text messages
             if (message.Text == null && message.Photo == null)
                 return;
+
+            var dbContextFactory = host.Services.GetRequiredService<IDbContextFactory<ApplicationDbContext>>();
+            using var context = dbContextFactory.CreateDbContext();
+            var user = await context.Users.Include(u => u.Photos).FirstOrDefaultAsync(u => u.ChatId == chatId, cancellationToken);
+
             if (message.Text != null)
                 Console.WriteLine($"Received a '{message.Text}' message in chat {chatId}.");
             else if (message.Photo != null)
                 Console.WriteLine($"Received a '{message.Photo.Last().FileId}' message in chat {chatId}.");
 
-            var dbContextFactory = host.Services.GetRequiredService<IDbContextFactory<ApplicationDbContext>>();
-            using var context = dbContextFactory.CreateDbContext();
-            var user = await context.Users.FirstOrDefaultAsync(u => u.ChatId == chatId, cancellationToken);
             await startHandler.HandleAsync(user, botClient, update, cancellationToken);
             return;
 

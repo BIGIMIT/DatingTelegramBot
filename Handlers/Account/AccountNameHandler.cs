@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace DatingTelegramBot.Handlers;
+namespace DatingTelegramBot.Handlers.Account;
 
 public class AccountNameHandler : MessageHandler
 {
@@ -18,27 +18,23 @@ public class AccountNameHandler : MessageHandler
 
     public override async Task HandleAsync(Models.User? user, ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
-        if (!CanHandle(user, update))
+        if (!CanHandle(user, update) || user == null || update.Message == null || update.Message.Text == null || _nextHandler == null)
         {
             await base.HandleAsync(user, botClient, update, cancellationToken);
             return;
         }
         using var context = _contextFactory.CreateDbContext();
-        
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-            long chatId = update.Message.Chat.Id;
 
-            user.CurrentHandler = _nextHandler.Name;
-            user.Name = update.Message.Text;
-            context.Users.Update(user);
-            await context.SaveChangesAsync(cancellationToken);
+        long chatId = update.Message.Chat.Id;
 
-            await botClient.SendTextMessageAsync(
-                chatId: chatId,
-                text: "Now enter your age",
-                cancellationToken: cancellationToken);
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-        
+        user.CurrentHandler = _nextHandler.Name;
+        user.Name = update.Message.Text;
+        context.Users.Update(user);
+        await context.SaveChangesAsync(cancellationToken);
 
+        await botClient.SendTextMessageAsync(
+            chatId: chatId,
+            text: "Now enter your age",
+            cancellationToken: cancellationToken);
     }
 }

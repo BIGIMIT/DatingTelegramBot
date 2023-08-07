@@ -3,6 +3,8 @@ using DatingTelegramBot.Models;
 using Microsoft.EntityFrameworkCore;
 using DatingTelegramBot.Handlers;
 using Microsoft.Extensions.Configuration;
+using DatingTelegramBot.Handlers.Account;
+using DatingTelegramBot.Handlers.Searching;
 
 namespace DatingTelegramBot.Services;
 public static class DIConfig
@@ -22,6 +24,9 @@ public static class DIConfig
         services.AddTransient<AccountPreferredGenderHandler>();
         services.AddTransient<AccountDescriptionHandler>();
         services.AddTransient<AccountPhotoHandler>();
+        services.AddTransient<AccountViewOrComplete>();
+        services.AddTransient<SendUserProfileHandler>();
+        services.AddTransient<StartSearching>();
         services.AddTransient<DefaultHandler>();
     }
 }

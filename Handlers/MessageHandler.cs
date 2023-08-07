@@ -20,11 +20,7 @@ public abstract class MessageHandler
         {
             return true;
         }
-        else if (user != null && user.CurrentHandler == Name && Name == "AccountPhotoHandler" && update?.Message?.Photo != null)
-        {
-            return true;
-        }
-        else if (user != null && user.CurrentHandler == Name && update?.Message?.Text != null)
+        else if (user != null && user.CurrentHandler == Name)
         {
             return true;
         }
@@ -37,7 +33,6 @@ public abstract class MessageHandler
     {
         if (!CanHandle(user, update) && _nextHandler != null)
         {
-            // Если этот обработчик не может обработать запрос, передать его следующему обработчику
             await _nextHandler.HandleAsync(user, botClient, update, cancellationToken);
         }
     }

@@ -4,18 +4,18 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace DatingTelegramBot.Handlers;
+namespace DatingTelegramBot.Handlers.Account;
 
-public class AgreeHandler : MessageHandler
+public class CreateAccountHandler : MessageHandler
 {
     private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
 
-    public AgreeHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
+    public CreateAccountHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
     {
         _contextFactory = contextFactory;
     }
 
-    public override string? Name { get; } = "AgreeHandler";
+    public override string? Name { get; } = "CreateAccountHandler";
 
     public override async Task HandleAsync(Models.User? user, ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
@@ -26,29 +26,22 @@ public class AgreeHandler : MessageHandler
         }
         using var context = _contextFactory.CreateDbContext();
 
+
         long chatId = update.Message.Chat.Id;
 
-        if (update.Message.Text == "I agree")
-        {
-            user.CurrentHandler = _nextHandler.Name;
-            context.Users.Update(user);
-            await context.SaveChangesAsync(cancellationToken);
-
-            await base.HandleAsync(user, botClient, update, cancellationToken);
-            return;
-        }
-        ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
-        {
-                new KeyboardButton[] { "I agree" },
-            })
-        {
-            ResizeKeyboard = true
-        };
+        user.CurrentHandler = _nextHandler.Name;
+        context.Users.Update(user);
+        await context.SaveChangesAsync(cancellationToken);
 
         await botClient.SendTextMessageAsync(
             chatId: chatId,
-            text: "Accept the agreement",
-            replyMarkup: replyKeyboardMarkup,
+            text: "Create An Account",
+            replyMarkup: new ReplyKeyboardRemove(),
+            cancellationToken: cancellationToken);
+
+        await botClient.SendTextMessageAsync(
+            chatId: chatId,
+            text: "Please enter your name",
             cancellationToken: cancellationToken);
 
 

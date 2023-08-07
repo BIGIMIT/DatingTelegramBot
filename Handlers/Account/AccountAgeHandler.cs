@@ -4,7 +4,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace DatingTelegramBot.Handlers;
+namespace DatingTelegramBot.Handlers.Account;
 
 public class AccountAgeHandler : MessageHandler
 {
@@ -19,19 +19,21 @@ public class AccountAgeHandler : MessageHandler
 
     public override async Task HandleAsync(Models.User? user, ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
-        if ((!CanHandle(user, update)))
+        if (!CanHandle(user, update) ||
+            user == null ||
+            update.Message == null ||
+            update.Message.Text == null ||
+            _nextHandler == null)
         {
             await base.HandleAsync(user, botClient, update, cancellationToken);
             return;
         }
 
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
         long chatId = update.Message.Chat.Id;
         string text = update.Message.Text;
 
         using var context = _contextFactory.CreateDbContext();
-        if (int.TryParse(text, out int number) && number < 100)
+        if (int.TryParse(text, out int number) && number < 100 && number >= 18)
         {
             user.Age = number;
         }
@@ -44,9 +46,9 @@ public class AccountAgeHandler : MessageHandler
             return;
         }
 
-
-        user.CurrentHandler = _nextHandler.Name;
         
+        user.CurrentHandler = _nextHandler.Name;
+
         context.Users.Update(user);
         await context.SaveChangesAsync(cancellationToken);
 
@@ -63,8 +65,6 @@ public class AccountAgeHandler : MessageHandler
                 text: "Choose your gender",
                 replyMarkup: replyKeyboardMarkup,
                 cancellationToken: cancellationToken);
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
 
 
     }

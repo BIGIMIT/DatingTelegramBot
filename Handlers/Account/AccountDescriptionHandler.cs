@@ -4,7 +4,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace DatingTelegramBot.Handlers;
+namespace DatingTelegramBot.Handlers.Account;
 
 public class AccountDescriptionHandler : MessageHandler
 {
@@ -19,11 +19,13 @@ public class AccountDescriptionHandler : MessageHandler
 
     public override async Task HandleAsync(Models.User? user, ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
 
 
-        if (!CanHandle(user, update))
+        if (!CanHandle(user, update) ||
+                    user == null ||
+                    update.Message == null ||
+                    update.Message.Text == null ||
+                    _nextHandler == null)
         {
             await base.HandleAsync(user, botClient, update, cancellationToken);
             return;
@@ -46,8 +48,5 @@ public class AccountDescriptionHandler : MessageHandler
                 replyMarkup: new ReplyKeyboardRemove(),
                 cancellationToken: cancellationToken);
 
-
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
     }
 }
