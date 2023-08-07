@@ -26,7 +26,7 @@ public static class DIConfig
         services.AddTransient<AccountPhotoHandler>();
         services.AddTransient<AccountViewOrComplete>();
         services.AddTransient<SendUserProfileHandler>();
-        services.AddTransient<StartSearching>();
+        services.AddTransient<SearchingStartHandler>();
         services.AddTransient<DefaultHandler>();
     }
 }

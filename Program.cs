@@ -44,7 +44,7 @@ public class Program
         var accountPhotoHandler = host.Services.GetRequiredService<AccountPhotoHandler>();
         var accountViewOrComplete = host.Services.GetRequiredService<AccountViewOrComplete>();
         var sendUserProfileHandler = host.Services.GetRequiredService<SendUserProfileHandler>();
-        var startSearching = host.Services.GetRequiredService<StartSearching>();
+        var startSearching = host.Services.GetRequiredService<SearchingStartHandler>();
         var defaultHandler = host.Services.GetRequiredService<DefaultHandler>();
 
 

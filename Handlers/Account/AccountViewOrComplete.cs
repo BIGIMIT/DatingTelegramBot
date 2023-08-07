@@ -40,7 +40,7 @@ public class AccountViewOrComplete : MessageHandler
         else if (update.Message.Text == "Complete registration")
         {
 
-            user.CurrentHandler = "StartSearching";
+            user.CurrentHandler = "SearchingStartHandler";
             context.Users.Update(user);
             await context.SaveChangesAsync(cancellationToken);
             context.Dispose();

@@ -21,5 +21,7 @@ public class User
     public List<UserView>? ViewedUsers { get; set; }
     // Пользователи, которые просмотрели этого пользователя
     public List<UserView>? ViewerUsers { get; set; }
+    public List<UserMessage>? SentMessages { get; set; }
+    public List<UserMessage>? ReceivedMessages { get; set; }
 }
 
