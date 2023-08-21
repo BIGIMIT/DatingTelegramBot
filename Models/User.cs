@@ -15,6 +15,7 @@ public class User
     public string? PreferGender { get; set; }
     public bool TurnOff { get; set; }
     public string? CurrentHandler { get; set; }
+    public bool Direction { get; set; } = true;
     public List<Photo>? Photos { get; set; }
     
     // Пользователи, которые этот пользователь просмотрел
