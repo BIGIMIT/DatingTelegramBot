@@ -8,9 +8,9 @@ namespace DatingTelegramBot.Handlers.Account;
 
 public class AccountPhotoHandler : MessageHandler
 {
-    private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+    private readonly new IDbContextFactory<ApplicationDbContext> _contextFactory;
 
-    public AccountPhotoHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
+    public AccountPhotoHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : base(contextFactory)
     {
         _contextFactory = contextFactory;
     }

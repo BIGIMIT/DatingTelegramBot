@@ -8,9 +8,9 @@ namespace DatingTelegramBot.Handlers;
 
 public class AgreeHandler : MessageHandler
 {
-    private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+    private readonly new IDbContextFactory<ApplicationDbContext> _contextFactory;
 
-    public AgreeHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
+    public AgreeHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : base(contextFactory)
     {
         _contextFactory = contextFactory;
     }

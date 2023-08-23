@@ -1,24 +1,29 @@
 ﻿using DatingTelegramBot.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace DatingTelegramBot.Handlers.Account;
+namespace DatingTelegramBot.Handlers.Searching;
 
-public class AccountNameHandler : MessageHandler
+public class ResumeSearchingHandler : MessageHandler
 {
     private readonly new IDbContextFactory<ApplicationDbContext> _contextFactory;
 
-    public AccountNameHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : base(contextFactory)
+    public ResumeSearchingHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : base(contextFactory)
     {
         _contextFactory = contextFactory;
     }
 
-    public override string? Name { get; } = "AccountNameHandler";
+    public override string? Name { get; } = "ResumeSearchingHandler";
 
     public override async Task HandleAsync(Models.User? user, ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
-        if (!CanHandle(user, update) || user == null || update.Message == null || update.Message.Text == null || _nextHandler == null)
+        if (!CanHandle(user, update) || user == null || update.Message == null || update.Message.Text != "Resume searching" )
         {
             await base.HandleAsync(user, botClient, update, cancellationToken);
             return;
@@ -27,14 +32,12 @@ public class AccountNameHandler : MessageHandler
 
         long chatId = update.Message.Chat.Id;
 
-        user.CurrentHandler = _nextHandler.Name;
+        user.CurrentHandler = "SearchingStartHandler";
+        user.Direction = false;
+        user.TurnOff = false;
         user.Name = update.Message.Text;
         context.Users.Update(user);
         await context.SaveChangesAsync(cancellationToken);
-
-        await botClient.SendTextMessageAsync(
-            chatId: chatId,
-            text: "Now enter your age",
-            cancellationToken: cancellationToken);
+        await base.HandleAsync(user, botClient, update, cancellationToken);
     }
 }

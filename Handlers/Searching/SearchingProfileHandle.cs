@@ -6,18 +6,18 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace DatingTelegramBot.Handlers.Account;
-
-public class SendUserProfileHandler : MessageHandler
+namespace DatingTelegramBot.Handlers.Searching;
+ 
+public class SearchingProfileHandle : MessageHandler
 {
     private readonly new IDbContextFactory<ApplicationDbContext> _contextFactory;
 
-    public SendUserProfileHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : base(contextFactory)
+    public SearchingProfileHandle(IDbContextFactory<ApplicationDbContext> contextFactory) : base(contextFactory)
     {
         _contextFactory = contextFactory;
     }
 
-    public override string? Name { get; } = "SendUserProfileHandler";
+    public override string? Name { get; } = "SearchingProfileHandle";
     public override async Task HandleAsync(Models.User? user, ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
 
@@ -27,15 +27,32 @@ public class SendUserProfileHandler : MessageHandler
             return;
         }
 
-        long chatId = update.Message.Chat.Id;
-
         using var context = _contextFactory.CreateDbContext();
 
-        user.CurrentHandler = _nextHandler.Name;
-        var text = BuildUserDescription(user);
+        if (update.Message.Text == "Change profile") 
+        {
 
-        context.Users.Update(user);
-        await context.SaveChangesAsync(cancellationToken);
+            user.CurrentHandler = "ChangeAccountHandler";
+            user.Direction = true;
+            context.Users.Update(user);
+            await context.SaveChangesAsync(cancellationToken);
+            await base.HandleAsync(user, botClient, update, cancellationToken);
+            return;
+        }
+        else if (update.Message.Text == "Back to searching")
+        {
+
+            user.CurrentHandler = "SearchingStartHandler";
+            user.Direction = false;
+            context.Users.Update(user);
+            await context.SaveChangesAsync(cancellationToken);
+            await base.HandleAsync(user, botClient, update, cancellationToken);
+            return;
+        }
+
+        long chatId = update.Message.Chat.Id;
+
+        var text = BuildUserDescription(user);
 
         var mediaGroup = new List<IAlbumInputMedia>();
 
@@ -48,7 +65,8 @@ public class SendUserProfileHandler : MessageHandler
 
             ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
             {
-                    new KeyboardButton[] { "Complete registration" },
+                    new KeyboardButton[] { "Back to searching" },
+                    new KeyboardButton[] { "Change profile" },
                 })
             {
                 ResizeKeyboard = true
@@ -80,6 +98,9 @@ public class SendUserProfileHandler : MessageHandler
 
         sb.Append("Age: ");
         sb.AppendLine(user.Age.ToString());
+
+        sb.Append("Gender: ");
+        sb.AppendLine(user.Gender);
 
         sb.Append("Description: ");
         sb.AppendLine(user.Description);

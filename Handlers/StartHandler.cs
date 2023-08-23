@@ -7,9 +7,9 @@ using Telegram.Bot.Types.ReplyMarkups;
 namespace DatingTelegramBot.Handlers;
 public class StartHandler : MessageHandler
 {
-    private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+    private readonly new IDbContextFactory<ApplicationDbContext> _contextFactory;
 
-    public StartHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
+    public StartHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : base(contextFactory)
     {
         _contextFactory = contextFactory;
     }
@@ -31,6 +31,7 @@ public class StartHandler : MessageHandler
         if (user != null)
         {
             user.CurrentHandler = _nextHandler.Name;
+            user.Direction = true;
             context.Users.Update(user);
             await context.SaveChangesAsync(cancellationToken);
         }

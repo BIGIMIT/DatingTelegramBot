@@ -8,9 +8,9 @@ namespace DatingTelegramBot.Handlers.Account;
 
 public class AccountGenderHandler : MessageHandler
 {
-    private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+    private readonly new IDbContextFactory<ApplicationDbContext> _contextFactory;
 
-    public AccountGenderHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
+    public AccountGenderHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : base(contextFactory)
     {
         _contextFactory = contextFactory;
     }

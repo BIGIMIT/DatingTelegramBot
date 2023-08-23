@@ -10,11 +10,20 @@ public abstract class MessageHandler
     public abstract string? Name { get; }
     protected MessageHandler? _nextHandler;
     protected MessageHandler? _previousHandler;
+    protected readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+
+    public MessageHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
+    {
+        _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
+    }
 
     public void SetNextHandler(MessageHandler messageHandler)
     {
         _nextHandler = messageHandler;
-        messageHandler._previousHandler = this;
+    }
+    public void SetPreviousHandler(MessageHandler messageHandler)
+    {
+        _previousHandler = messageHandler;
     }
     protected bool CanHandle(Models.User? user, Update update)
     {
@@ -31,8 +40,19 @@ public abstract class MessageHandler
             return false;
         }
     }
+    private async Task UpdateUserInDatabase(Models.User user)
+    {
+        using var context = _contextFactory.CreateDbContext();
+        context.Users.Update(user);
+        await context.SaveChangesAsync();
+    }
     public virtual async Task HandleAsync(Models.User? user, ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
+        if (user?.Direction == false && user.CurrentHandler == Name)
+        {
+            user.Direction = true;
+            await UpdateUserInDatabase(user);
+        }
         if (!CanHandle(user, update))
         {
             if (user?.Direction == true && _nextHandler != null)

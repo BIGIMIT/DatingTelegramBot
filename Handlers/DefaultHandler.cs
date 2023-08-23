@@ -6,6 +6,10 @@ using Telegram.Bot.Types;
 namespace DatingTelegramBot.Handlers;
 public class DefaultHandler : MessageHandler
 {
+    public DefaultHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : base(contextFactory)
+    {
+    }
+
     public override string? Name { get; } = "DefaultHandler";
 
     public override async Task HandleAsync(Models.User? user, ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)

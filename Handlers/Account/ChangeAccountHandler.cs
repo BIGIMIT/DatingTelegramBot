@@ -1,25 +1,30 @@
 ﻿using DatingTelegramBot.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Telegram.Bot.Types.ReplyMarkups;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace DatingTelegramBot.Handlers.Account;
 
-public class CreateAccountHandler : MessageHandler
+public class ChangeAccountHandler : MessageHandler
 {
     private readonly new IDbContextFactory<ApplicationDbContext> _contextFactory;
 
-    public CreateAccountHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : base(contextFactory)
+    public ChangeAccountHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : base(contextFactory)
     {
         _contextFactory = contextFactory;
     }
 
-    public override string? Name { get; } = "CreateAccountHandler";
+    public override string? Name { get; } = "ChangeAccountHandler";
 
     public override async Task HandleAsync(Models.User? user, ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
-        if (!CanHandle(user, update) || user == null || update.Message == null || update.Message.Text == null || _nextHandler == null)
+        if (!CanHandle(user, update) || user == null || update.Message == null || update.Message.Text == null)
         {
             await base.HandleAsync(user, botClient, update, cancellationToken);
             return;
@@ -29,13 +34,14 @@ public class CreateAccountHandler : MessageHandler
 
         long chatId = update.Message.Chat.Id;
 
-        user.CurrentHandler = _nextHandler.Name;
+        user.CurrentHandler = "AccountNameHandler";
+        user.Direction = true;
         context.Users.Update(user);
         await context.SaveChangesAsync(cancellationToken);
 
         await botClient.SendTextMessageAsync(
             chatId: chatId,
-            text: "Create An Account",
+            text: "Change your profile",
             replyMarkup: new ReplyKeyboardRemove(),
             cancellationToken: cancellationToken);
 

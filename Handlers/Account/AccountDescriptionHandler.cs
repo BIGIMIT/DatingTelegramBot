@@ -1,5 +1,6 @@
 ﻿using DatingTelegramBot.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -8,9 +9,9 @@ namespace DatingTelegramBot.Handlers.Account;
 
 public class AccountDescriptionHandler : MessageHandler
 {
-    private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+    private readonly new IDbContextFactory<ApplicationDbContext> _contextFactory;
 
-    public AccountDescriptionHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
+    public AccountDescriptionHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : base(contextFactory)
     {
         _contextFactory = contextFactory;
     }

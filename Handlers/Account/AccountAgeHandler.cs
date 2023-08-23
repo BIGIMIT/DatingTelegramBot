@@ -8,9 +8,9 @@ namespace DatingTelegramBot.Handlers.Account;
 
 public class AccountAgeHandler : MessageHandler
 {
-    private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+    private readonly new IDbContextFactory<ApplicationDbContext> _contextFactory;
 
-    public AccountAgeHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
+    public AccountAgeHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : base(contextFactory)
     {
         _contextFactory = contextFactory;
     }

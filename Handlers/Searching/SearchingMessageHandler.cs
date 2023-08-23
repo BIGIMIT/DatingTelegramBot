@@ -8,9 +8,9 @@ namespace DatingTelegramBot.Handlers.Searching;
 
 public class SearchingMessageHandler : MessageHandler
 {
-    private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+    private readonly new IDbContextFactory<ApplicationDbContext> _contextFactory;
 
-    public SearchingMessageHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
+    public SearchingMessageHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : base(contextFactory)
     {
         _contextFactory = contextFactory;
     }

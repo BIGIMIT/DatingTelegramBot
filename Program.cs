@@ -44,22 +44,63 @@ public class Program
         var accountPhotoHandler = host.Services.GetRequiredService<AccountPhotoHandler>();
         var accountViewOrComplete = host.Services.GetRequiredService<AccountViewOrComplete>();
         var sendUserProfileHandler = host.Services.GetRequiredService<SendUserProfileHandler>();
-        var startSearching = host.Services.GetRequiredService<SearchingStartHandler>();
+        var searchingStartHandler = host.Services.GetRequiredService<SearchingStartHandler>();
+        var searchingSettingsHandler = host.Services.GetRequiredService<SearchingSettingsHandler>();
+        var searchingProfileHandle = host.Services.GetRequiredService<SearchingProfileHandle>();
+        var changeAccountHandler = host.Services.GetRequiredService<ChangeAccountHandler>();
+        var resumeSearchingHandler = host.Services.GetRequiredService<ResumeSearchingHandler>();
         var defaultHandler = host.Services.GetRequiredService<DefaultHandler>();
 
 
         startHandler.SetNextHandler(agreeHandler);
+
+        agreeHandler.SetPreviousHandler(startHandler);
         agreeHandler.SetNextHandler(createAccountHandler);
+
+        createAccountHandler.SetPreviousHandler(agreeHandler);
         createAccountHandler.SetNextHandler(accountNameHandler);
+
+        accountNameHandler.SetPreviousHandler(createAccountHandler);
         accountNameHandler.SetNextHandler(accountAgeHandler);
+
+        accountAgeHandler.SetPreviousHandler(accountNameHandler);
         accountAgeHandler.SetNextHandler(accountGenderHandler);
+
+        accountGenderHandler.SetPreviousHandler(accountAgeHandler);
         accountGenderHandler.SetNextHandler(accountPreferredGenderHandler);
+
+        accountPreferredGenderHandler.SetPreviousHandler(accountGenderHandler);
         accountPreferredGenderHandler.SetNextHandler(accountDescriptionHandler);
+
+        accountDescriptionHandler.SetPreviousHandler(accountPreferredGenderHandler);
         accountDescriptionHandler.SetNextHandler(accountPhotoHandler);
+
+        accountPhotoHandler.SetPreviousHandler(accountDescriptionHandler);
         accountPhotoHandler.SetNextHandler(accountViewOrComplete);
+
+        accountViewOrComplete.SetPreviousHandler(accountPhotoHandler);
         accountViewOrComplete.SetNextHandler(sendUserProfileHandler);
-        sendUserProfileHandler.SetNextHandler(startSearching);
-        startSearching.SetNextHandler(defaultHandler);
+
+        sendUserProfileHandler.SetPreviousHandler(accountViewOrComplete);
+        sendUserProfileHandler.SetNextHandler(searchingStartHandler);
+
+        searchingStartHandler.SetPreviousHandler(sendUserProfileHandler);
+        searchingStartHandler.SetNextHandler(searchingSettingsHandler);
+
+        searchingSettingsHandler.SetPreviousHandler(searchingStartHandler);
+        searchingSettingsHandler.SetNextHandler(searchingProfileHandle);
+
+        searchingProfileHandle.SetPreviousHandler(searchingSettingsHandler);
+        searchingProfileHandle.SetNextHandler(changeAccountHandler);
+
+        changeAccountHandler.SetPreviousHandler(searchingProfileHandle);
+        changeAccountHandler.SetNextHandler(resumeSearchingHandler);
+
+        resumeSearchingHandler.SetPreviousHandler(changeAccountHandler);
+        resumeSearchingHandler.SetNextHandler(defaultHandler);
+
+        defaultHandler.SetPreviousHandler(resumeSearchingHandler);
+
 
 
         using CancellationTokenSource cts = new();

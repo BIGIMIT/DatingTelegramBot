@@ -27,6 +27,10 @@ public static class DIConfig
         services.AddTransient<AccountViewOrComplete>();
         services.AddTransient<SendUserProfileHandler>();
         services.AddTransient<SearchingStartHandler>();
+        services.AddTransient<SearchingSettingsHandler>();
+        services.AddTransient<SearchingProfileHandle>();
+        services.AddTransient<ChangeAccountHandler>();
+        services.AddTransient<ResumeSearchingHandler>();
         services.AddTransient<DefaultHandler>();
     }
 }

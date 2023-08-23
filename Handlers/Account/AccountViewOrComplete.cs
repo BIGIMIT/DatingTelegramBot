@@ -7,9 +7,9 @@ namespace DatingTelegramBot.Handlers.Account;
 
 public class AccountViewOrComplete : MessageHandler
 {
-    private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+    private readonly new IDbContextFactory<ApplicationDbContext> _contextFactory;
 
-    public AccountViewOrComplete(IDbContextFactory<ApplicationDbContext> contextFactory)
+    public AccountViewOrComplete(IDbContextFactory<ApplicationDbContext> contextFactory) : base(contextFactory)
     {
         _contextFactory = contextFactory;
     }
