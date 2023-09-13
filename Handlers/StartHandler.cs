@@ -40,6 +40,7 @@ public class StartHandler : MessageHandler
             var newUser = new Models.User
             {
                 ChatId = chatId,
+                Language = "English",
                 CurrentHandler = _nextHandler.Name,
                 TurnOff = true,
             };
@@ -47,16 +48,17 @@ public class StartHandler : MessageHandler
             await context.SaveChangesAsync(cancellationToken);
         }
         ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
-        {
-                new KeyboardButton[] { "Continue" },
+            {
+                new KeyboardButton[] { "English","Русский" },
+                new KeyboardButton[] { "Українська" },
             })
-        {
-            ResizeKeyboard = true
-        };
+            {
+                ResizeKeyboard = true
+            };
 
         await botClient.SendTextMessageAsync(
             chatId: chatId,
-            text: "Welcome",
+            text: "Choose language below",
             replyMarkup: replyKeyboardMarkup,
             cancellationToken: cancellationToken);
     }

@@ -1,4 +1,5 @@
 ﻿using DatingTelegramBot.Models;
+using DatingTelegramBot.Services;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -34,7 +35,7 @@ public class AccountNameHandler : MessageHandler
 
         await botClient.SendTextMessageAsync(
             chatId: chatId,
-            text: "Now enter your age",
+            text: PhraseDictionary.GetPhrase(user.Language, Phrases.Now_enter_your_age),
             cancellationToken: cancellationToken);
     }
 }

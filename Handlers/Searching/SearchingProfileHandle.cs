@@ -1,4 +1,5 @@
 ﻿using DatingTelegramBot.Models;
+using DatingTelegramBot.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 using Telegram.Bot;
@@ -29,9 +30,8 @@ public class SearchingProfileHandle : MessageHandler
 
         using var context = _contextFactory.CreateDbContext();
 
-        if (update.Message.Text == "Change profile") 
+        if (update.Message.Text == PhraseDictionary.GetPhrase(user.Language, Phrases.Change_profile)) 
         {
-
             user.CurrentHandler = "ChangeAccountHandler";
             user.Direction = true;
             context.Users.Update(user);
@@ -39,7 +39,7 @@ public class SearchingProfileHandle : MessageHandler
             await base.HandleAsync(user, botClient, update, cancellationToken);
             return;
         }
-        else if (update.Message.Text == "Back to searching")
+        else if (update.Message.Text == PhraseDictionary.GetPhrase(user.Language, Phrases.Back_to_searching))
         {
 
             user.CurrentHandler = "SearchingStartHandler";
@@ -54,10 +54,9 @@ public class SearchingProfileHandle : MessageHandler
 
         var text = BuildUserDescription(user);
 
-        var mediaGroup = new List<IAlbumInputMedia>();
-
         user.Photos ??= new();
         var photo = user.Photos.FirstOrDefault();
+        
         try
         {
             if (photo == null || photo.Path == null) return;
@@ -65,8 +64,8 @@ public class SearchingProfileHandle : MessageHandler
 
             ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
             {
-                    new KeyboardButton[] { "Back to searching" },
-                    new KeyboardButton[] { "Change profile" },
+                    new KeyboardButton[] { PhraseDictionary.GetPhrase(user.Language, Phrases.Back_to_searching) },
+                    new KeyboardButton[] { PhraseDictionary.GetPhrase(user.Language, Phrases.Change_profile) },
                 })
             {
                 ResizeKeyboard = true
@@ -85,24 +84,26 @@ public class SearchingProfileHandle : MessageHandler
         {
             await botClient.SendTextMessageAsync(
                 chatId,
-                "Could not find file",
+                PhraseDictionary.GetPhrase(user.Language, Phrases.Try_again),
                 cancellationToken: cancellationToken);
         }
+
+
     }
     private static string BuildUserDescription(Models.User user)
     {
         StringBuilder sb = new();
 
-        sb.Append("Name: ");
+        sb.Append($"{PhraseDictionary.GetPhrase(user.Language, Phrases.Name)}: ");
         sb.AppendLine(user.Name);
 
-        sb.Append("Age: ");
+        sb.Append($"{PhraseDictionary.GetPhrase(user.Language, Phrases.Age)}: ");
         sb.AppendLine(user.Age.ToString());
 
-        sb.Append("Gender: ");
+        sb.Append($"{PhraseDictionary.GetPhrase(user.Language, Phrases.Gender)}: ");
         sb.AppendLine(user.Gender);
 
-        sb.Append("Description: ");
+        sb.Append($"{PhraseDictionary.GetPhrase(user.Language, Phrases.Description)}: ");
         sb.AppendLine(user.Description);
 
         return sb.ToString();

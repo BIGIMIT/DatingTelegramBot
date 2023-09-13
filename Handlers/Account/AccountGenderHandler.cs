@@ -1,4 +1,5 @@
 ﻿using DatingTelegramBot.Models;
+using DatingTelegramBot.Services;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -28,36 +29,43 @@ public class AccountGenderHandler : MessageHandler
         long chatId = update.Message.Chat.Id;
         string text = update.Message.Text;
 
-        if (text == "Woman" || text == "Man")
+        using var context = _contextFactory.CreateDbContext();
+
+        if (text == PhraseDictionary.GetPhrase(user.Language, Phrases.Woman))
         {
-            using var context = _contextFactory.CreateDbContext();
-
             user.CurrentHandler = _nextHandler.Name;
-            user.Gender = text;
-            context.Users.Update(user);
-            await context.SaveChangesAsync(cancellationToken);
-
-            ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
-            {
-                    new KeyboardButton[] { "Woman" },
-                    new KeyboardButton[] { "Man" },
-                    new KeyboardButton[] { "Both" },
-                })
-            {
-                ResizeKeyboard = true
-            };
-            await botClient.SendTextMessageAsync(
-                    chatId: chatId,
-                    text: "Choose preferred gender",
-                    replyMarkup: replyKeyboardMarkup,
-                    cancellationToken: cancellationToken);
+            user.Gender = "Woman";
+        }
+        else if (text == PhraseDictionary.GetPhrase(user.Language, Phrases.Man))
+        {
+            user.CurrentHandler = _nextHandler.Name;
+            user.Gender = "Man";
         }
         else
         {
             await botClient.SendTextMessageAsync(
                    chatId: chatId,
-                   text: "Use the keyboard below",
+                   text: PhraseDictionary.GetPhrase(user.Language, Phrases.Use_the_keyboard_below),
                    cancellationToken: cancellationToken);
+            return;
         }
+
+        context.Users.Update(user);
+        await context.SaveChangesAsync(cancellationToken);
+
+        ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
+        {
+                    new KeyboardButton[] { PhraseDictionary.GetPhrase(user.Language, Phrases.Woman) },
+                    new KeyboardButton[] { PhraseDictionary.GetPhrase(user.Language, Phrases.Man) },
+                    new KeyboardButton[] { PhraseDictionary.GetPhrase(user.Language, Phrases.Both) },
+                })
+        {
+            ResizeKeyboard = true
+        };
+        await botClient.SendTextMessageAsync(
+                chatId: chatId,
+                text: PhraseDictionary.GetPhrase(user.Language, Phrases.Choose_preferred_gender),
+                replyMarkup: replyKeyboardMarkup,
+                cancellationToken: cancellationToken);
     }
 }

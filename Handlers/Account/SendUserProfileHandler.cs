@@ -1,4 +1,5 @@
 ﻿using DatingTelegramBot.Models;
+using DatingTelegramBot.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 using Telegram.Bot;
@@ -48,7 +49,7 @@ public class SendUserProfileHandler : MessageHandler
 
             ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
             {
-                    new KeyboardButton[] { "Complete registration" },
+                    new KeyboardButton[] { PhraseDictionary.GetPhrase(user.Language, Phrases.Complete_registration) },
                 })
             {
                 ResizeKeyboard = true
@@ -67,7 +68,7 @@ public class SendUserProfileHandler : MessageHandler
         {
             await botClient.SendTextMessageAsync(
                 chatId,
-                "Could not find file",
+                PhraseDictionary.GetPhrase(user.Language, Phrases.Something_went_wrong_try_again),
                 cancellationToken: cancellationToken);
         }
     }
@@ -75,13 +76,13 @@ public class SendUserProfileHandler : MessageHandler
     {
         StringBuilder sb = new();
 
-        sb.Append("Name: ");
+        sb.Append($"{PhraseDictionary.GetPhrase(user.Language, Phrases.Name)}: ");
         sb.AppendLine(user.Name);
 
-        sb.Append("Age: ");
+        sb.Append($"{PhraseDictionary.GetPhrase(user.Language, Phrases.Age)}: ");
         sb.AppendLine(user.Age.ToString());
 
-        sb.Append("Description: ");
+        sb.Append($"{PhraseDictionary.GetPhrase(user.Language, Phrases.Description)}: ");
         sb.AppendLine(user.Description);
 
         return sb.ToString();

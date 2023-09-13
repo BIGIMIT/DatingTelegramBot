@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System.Reflection;
 
 namespace DatingTelegramBot.Models;
 public class ApplicationDbContext : DbContext
@@ -6,7 +8,6 @@ public class ApplicationDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Photo> Photos { get; set; }
     public DbSet<UserView> UserViews { get; set; }
-    public DbSet<UserMessage> UserMessages { get; set; }
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
@@ -29,19 +30,5 @@ public class ApplicationDbContext : DbContext
             .WithMany(u => u.ViewerUsers)
             .HasForeignKey(uv => uv.ViewedId);
 
-
-        modelBuilder.Entity<UserMessage>()
-            .HasKey(um => new { um.SenderId, um.ReceiverId });
-
-        modelBuilder.Entity<UserMessage>()
-            .HasOne(um => um.Sender)
-            .WithMany(u => u.SentMessages)
-            .HasForeignKey(um => um.SenderId)
-            .OnDelete(DeleteBehavior.Restrict); ;
-
-        modelBuilder.Entity<UserMessage>()
-            .HasOne(um => um.Receiver)
-            .WithMany(u => u.ReceivedMessages)
-            .HasForeignKey(um => um.ReceiverId);
     }
 }

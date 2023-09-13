@@ -1,4 +1,5 @@
 ﻿using DatingTelegramBot.Models;
+using DatingTelegramBot.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using Telegram.Bot;
@@ -45,7 +46,7 @@ public class AccountDescriptionHandler : MessageHandler
 
         await botClient.SendTextMessageAsync(
                 chatId: chatId,
-                text: "That's almost all, it remains only to add a photo",
+                text: PhraseDictionary.GetPhrase(user.Language, Phrases.Thats_almost_all_it_remains_only_to_add_a_photo),
                 replyMarkup: new ReplyKeyboardRemove(),
                 cancellationToken: cancellationToken);
 

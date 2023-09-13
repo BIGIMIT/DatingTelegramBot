@@ -1,4 +1,5 @@
 ﻿using DatingTelegramBot.Models;
+using DatingTelegramBot.Services;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -25,24 +26,42 @@ public class AccountPreferredGenderHandler : MessageHandler
             await base.HandleAsync(user, botClient, update, cancellationToken);
             return;
         }
-        
+
         long chatId = update.Message.Chat.Id;
         string text = update.Message.Text;
 
-        if (text == "Woman" || text == "Man" || text == "Both")
+        using var context = _contextFactory.CreateDbContext();
+
+        if (text == PhraseDictionary.GetPhrase(user.Language, Phrases.Woman))
         {
-            using var context = _contextFactory.CreateDbContext();
+            user.CurrentHandler = _nextHandler.Name;
+            user.PreferGender = "Woman";
+
+
+        }
+        else if (text == PhraseDictionary.GetPhrase(user.Language, Phrases.Man))
+        {
 
             user.CurrentHandler = _nextHandler.Name;
-            user.PreferGender = text;
-            context.Users.Update(user);
-            await context.SaveChangesAsync(cancellationToken);
-
-            await botClient.SendTextMessageAsync(
-                    chatId: chatId,
-                    text: "Write semething bout you",
-                    replyMarkup: new ReplyKeyboardRemove(),
-                    cancellationToken: cancellationToken);
+            user.PreferGender = "Man";
         }
+        else if (text == PhraseDictionary.GetPhrase(user.Language, Phrases.Both))
+        {
+
+            user.CurrentHandler = _nextHandler.Name;
+            user.PreferGender = "Both";
+        }
+        else
+        {
+            return;
+        }
+
+        await botClient.SendTextMessageAsync(
+                chatId: chatId,
+                text: PhraseDictionary.GetPhrase(user.Language, Phrases.Write_semething_bout_you),
+                replyMarkup: new ReplyKeyboardRemove(),
+                cancellationToken: cancellationToken);
+        context.Users.Update(user);
+        await context.SaveChangesAsync(cancellationToken);
     }
 }

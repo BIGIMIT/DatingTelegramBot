@@ -16,8 +16,11 @@ namespace DatingTelegramBot;
 
 public class Program
 {
+    public static Dictionary<int, string> UsersMessage = new();
+    public static string[] Languages = { "Русский", "Українська", "English" };
     private static async Task Main(string[] args)
     {
+
         var configurationService = new ConfigurationService();
         var configuration = ConfigurationService.GetConfiguration();
 #pragma warning disable CS8604 // Possible null reference argument.
@@ -34,7 +37,9 @@ public class Program
 
         // Создаем обработчики для различных типов сообщений
         var startHandler = host.Services.GetRequiredService<StartHandler>();
+        var languageHandle = host.Services.GetRequiredService<LanguageHandle>();
         var agreeHandler = host.Services.GetRequiredService<AgreeHandler>();
+        var accountUsernameHandler = host.Services.GetRequiredService<AccountUsernameHandler>();
         var createAccountHandler = host.Services.GetRequiredService<CreateAccountHandler>();
         var accountNameHandler = host.Services.GetRequiredService<AccountNameHandler>();
         var accountAgeHandler = host.Services.GetRequiredService<AccountAgeHandler>();
@@ -49,15 +54,23 @@ public class Program
         var searchingProfileHandle = host.Services.GetRequiredService<SearchingProfileHandle>();
         var changeAccountHandler = host.Services.GetRequiredService<ChangeAccountHandler>();
         var resumeSearchingHandler = host.Services.GetRequiredService<ResumeSearchingHandler>();
+        var searchingMatches = host.Services.GetRequiredService<SearchingMatches>();
+        var searchingMessageHandler = host.Services.GetRequiredService<SearchingMessageHandler>();
         var defaultHandler = host.Services.GetRequiredService<DefaultHandler>();
 
 
-        startHandler.SetNextHandler(agreeHandler);
+        startHandler.SetNextHandler(languageHandle);
 
-        agreeHandler.SetPreviousHandler(startHandler);
-        agreeHandler.SetNextHandler(createAccountHandler);
+        languageHandle.SetPreviousHandler(startHandler);
+        languageHandle.SetNextHandler(agreeHandler);
+        
+        agreeHandler.SetPreviousHandler(languageHandle);
+        agreeHandler.SetNextHandler(accountUsernameHandler);
 
-        createAccountHandler.SetPreviousHandler(agreeHandler);
+        accountUsernameHandler.SetPreviousHandler(agreeHandler);
+        accountUsernameHandler.SetNextHandler(createAccountHandler);
+
+        createAccountHandler.SetPreviousHandler(accountUsernameHandler);
         createAccountHandler.SetNextHandler(accountNameHandler);
 
         accountNameHandler.SetPreviousHandler(createAccountHandler);
@@ -91,15 +104,21 @@ public class Program
         searchingSettingsHandler.SetNextHandler(searchingProfileHandle);
 
         searchingProfileHandle.SetPreviousHandler(searchingSettingsHandler);
-        searchingProfileHandle.SetNextHandler(changeAccountHandler);
+        searchingProfileHandle.SetNextHandler(searchingMatches);
 
-        changeAccountHandler.SetPreviousHandler(searchingProfileHandle);
+        searchingMatches.SetPreviousHandler(searchingProfileHandle);
+        searchingMatches.SetNextHandler(changeAccountHandler);
+
+        changeAccountHandler.SetPreviousHandler(searchingMatches);
         changeAccountHandler.SetNextHandler(resumeSearchingHandler);
 
         resumeSearchingHandler.SetPreviousHandler(changeAccountHandler);
-        resumeSearchingHandler.SetNextHandler(defaultHandler);
+        resumeSearchingHandler.SetNextHandler(searchingMessageHandler);
 
-        defaultHandler.SetPreviousHandler(resumeSearchingHandler);
+        searchingMessageHandler.SetPreviousHandler(resumeSearchingHandler);
+        searchingMessageHandler.SetNextHandler(defaultHandler);
+
+        defaultHandler.SetPreviousHandler(searchingMessageHandler);
 
 
 
@@ -130,7 +149,7 @@ public class Program
             if (update.Message is not { } message)
                 return;
             var chatId = message.Chat.Id;
-            // Only process text messages
+
             if (message.Text == null && message.Photo == null)
                 return;
 
@@ -139,9 +158,9 @@ public class Program
             var user = await context.Users.Include(u => u.Photos).FirstOrDefaultAsync(u => u.ChatId == chatId, cancellationToken);
 
             if (message.Text != null)
-                Console.WriteLine($"Received a '{message.Text}' message in chat {chatId}.");
+                Console.WriteLine($"Received a message in chat {chatId} - '{message.Text}' .");
             else if (message.Photo != null)
-                Console.WriteLine($"Received a '{message.Photo.Last().FileId}' message in chat {chatId}.");
+                Console.WriteLine($"Received a message in chat {chatId} - '{message.Photo.Last().FileId}' .");
 
             await startHandler.HandleAsync(user, botClient, update, cancellationToken);
             return;

@@ -1,4 +1,5 @@
 ﻿using DatingTelegramBot.Models;
+using DatingTelegramBot.Services;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -57,8 +58,8 @@ public class AccountPhotoHandler : MessageHandler
 
             ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
             {
-                    new KeyboardButton[] { "View profile" },
-                    new KeyboardButton[] { "Complete registration" },
+                    new KeyboardButton[] { PhraseDictionary.GetPhrase(user.Language, Phrases.View_my_profile) },
+                    new KeyboardButton[] { PhraseDictionary.GetPhrase(user.Language, Phrases.Complete_registration) },
                 })
             {
                 ResizeKeyboard = true
@@ -66,25 +67,10 @@ public class AccountPhotoHandler : MessageHandler
 
             await botClient.SendTextMessageAsync(
                     chatId: chatId,
-                    text: "Choose next step",
+                    text: PhraseDictionary.GetPhrase(user.Language, Phrases.Choose_next_step),
                     replyMarkup: replyKeyboardMarkup,
                     cancellationToken: cancellationToken);
 
-            //else
-            //{
-
-            //    user.Photos.Add(new Photo { FileId = fileId, Path = destinationFilePath });
-
-            //    context.Users.Update(user);
-            //    await context.SaveChangesAsync(cancellationToken);
-
-            //    await botClient.SendTextMessageAsync(
-            //            chatId: chatId,
-            //            text: "Please add another photo",
-            //            replyMarkup: new ReplyKeyboardRemove(),
-            //            cancellationToken: cancellationToken);
-            //}
-        
 
     }
 

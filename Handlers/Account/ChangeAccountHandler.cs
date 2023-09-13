@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Telegram.Bot.Types.ReplyMarkups;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using DatingTelegramBot.Services;
 
 namespace DatingTelegramBot.Handlers.Account;
 
@@ -41,13 +42,13 @@ public class ChangeAccountHandler : MessageHandler
 
         await botClient.SendTextMessageAsync(
             chatId: chatId,
-            text: "Change your profile",
+            text: PhraseDictionary.GetPhrase(user.Language, Phrases.Change_profile),
             replyMarkup: new ReplyKeyboardRemove(),
             cancellationToken: cancellationToken);
 
         await botClient.SendTextMessageAsync(
             chatId: chatId,
-            text: "Please enter your name",
+            text: PhraseDictionary.GetPhrase(user.Language, Phrases.Please_enter_your_name),
             cancellationToken: cancellationToken);
 
 

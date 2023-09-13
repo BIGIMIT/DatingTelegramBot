@@ -1,4 +1,5 @@
 ﻿using DatingTelegramBot.Models;
+using DatingTelegramBot.Services;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -28,7 +29,7 @@ public class AgreeHandler : MessageHandler
 
         long chatId = update.Message.Chat.Id;
 
-        if (update.Message.Text == "I agree")
+        if (update.Message.Text == PhraseDictionary.GetPhrase(user.Language, Phrases.I_agree))
         {
             user.CurrentHandler = _nextHandler.Name;
             context.Users.Update(user);
@@ -39,7 +40,7 @@ public class AgreeHandler : MessageHandler
         }
         ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
         {
-                new KeyboardButton[] { "I agree" },
+                new KeyboardButton[] { PhraseDictionary.GetPhrase(user.Language, Phrases.I_agree) },
             })
         {
             ResizeKeyboard = true
@@ -47,7 +48,7 @@ public class AgreeHandler : MessageHandler
 
         await botClient.SendTextMessageAsync(
             chatId: chatId,
-            text: "Accept the agreement",
+            text: PhraseDictionary.GetPhrase(user.Language, Phrases.Accept_the_agreement),
             replyMarkup: replyKeyboardMarkup,
             cancellationToken: cancellationToken);
 

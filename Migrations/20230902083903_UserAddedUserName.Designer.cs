@@ -4,6 +4,7 @@ using DatingTelegramBot.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatingTelegramBot.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230902083903_UserAddedUserName")]
+    partial class UserAddedUserName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -82,10 +85,6 @@ namespace DatingTelegramBot.Migrations
                     b.Property<string>("Gender")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Language")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
@@ -110,6 +109,24 @@ namespace DatingTelegramBot.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("DatingTelegramBot.Models.UserMessage", b =>
+                {
+                    b.Property<int>("SenderId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReceiverId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MessageText")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("SenderId", "ReceiverId");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.ToTable("UserMessages");
+                });
+
             modelBuilder.Entity("DatingTelegramBot.Models.UserView", b =>
                 {
                     b.Property<int>("ViewerId")
@@ -119,12 +136,6 @@ namespace DatingTelegramBot.Migrations
                         .HasColumnType("int");
 
                     b.Property<bool?>("Like")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Message")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("WasShown")
                         .HasColumnType("bit");
 
                     b.HasKey("ViewerId", "ViewedId");
@@ -143,6 +154,25 @@ namespace DatingTelegramBot.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("DatingTelegramBot.Models.UserMessage", b =>
+                {
+                    b.HasOne("DatingTelegramBot.Models.User", "Receiver")
+                        .WithMany("ReceivedMessages")
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DatingTelegramBot.Models.User", "Sender")
+                        .WithMany("SentMessages")
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Receiver");
+
+                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("DatingTelegramBot.Models.UserView", b =>
@@ -167,6 +197,10 @@ namespace DatingTelegramBot.Migrations
             modelBuilder.Entity("DatingTelegramBot.Models.User", b =>
                 {
                     b.Navigation("Photos");
+
+                    b.Navigation("ReceivedMessages");
+
+                    b.Navigation("SentMessages");
 
                     b.Navigation("ViewedUsers");
 

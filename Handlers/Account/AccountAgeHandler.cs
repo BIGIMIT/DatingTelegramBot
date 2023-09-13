@@ -1,4 +1,5 @@
 ﻿using DatingTelegramBot.Models;
+using DatingTelegramBot.Services;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -41,30 +42,30 @@ public class AccountAgeHandler : MessageHandler
         {
             await botClient.SendTextMessageAsync(
             chatId: chatId,
-            text: "Age must be number that less than 100",
+            text: PhraseDictionary.GetPhrase(user.Language, Phrases.You_must_be_over_18_years_old),
             cancellationToken: cancellationToken);
             return;
         }
 
-        
-        user.CurrentHandler = _nextHandler.Name;
-
-        context.Users.Update(user);
-        await context.SaveChangesAsync(cancellationToken);
-
         ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
         {
-            new KeyboardButton[] { "Woman" },
-            new KeyboardButton[] { "Man" },
+            new KeyboardButton[] { PhraseDictionary.GetPhrase(user.Language, Phrases.Woman) },
+            new KeyboardButton[] { PhraseDictionary.GetPhrase(user.Language, Phrases.Man) },
         })
         {
             ResizeKeyboard = true
         };
         await botClient.SendTextMessageAsync(
                 chatId: chatId,
-                text: "Choose your gender",
+                text: PhraseDictionary.GetPhrase(user.Language, Phrases.Choose_your_gender),
                 replyMarkup: replyKeyboardMarkup,
                 cancellationToken: cancellationToken);
+
+        user.CurrentHandler = _nextHandler.Name;
+
+        context.Users.Update(user);
+        await context.SaveChangesAsync(cancellationToken);
+
 
 
     }

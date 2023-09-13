@@ -16,7 +16,9 @@ public static class DIConfig
 
         // Регистрируем обработчики
         services.AddTransient<StartHandler>();
+        services.AddTransient<LanguageHandle>();
         services.AddTransient<AgreeHandler>();
+        services.AddTransient<AccountUsernameHandler>();
         services.AddTransient<CreateAccountHandler>();
         services.AddTransient<AccountNameHandler>();
         services.AddTransient<AccountAgeHandler>();
@@ -31,6 +33,8 @@ public static class DIConfig
         services.AddTransient<SearchingProfileHandle>();
         services.AddTransient<ChangeAccountHandler>();
         services.AddTransient<ResumeSearchingHandler>();
+        services.AddTransient<SearchingMatches>();
+        services.AddTransient<SearchingMessageHandler>();
         services.AddTransient<DefaultHandler>();
     }
 }

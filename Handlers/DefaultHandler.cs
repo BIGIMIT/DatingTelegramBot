@@ -21,7 +21,7 @@ public class DefaultHandler : MessageHandler
         // Send a default message if no other handlers could process the request
         await botClient.SendTextMessageAsync(
             chatId: chatId,
-            text: "Sorry, I couldn't process your request. Please try again later.",
+            text: "???",
             cancellationToken: cancellationToken);
 
     }
