@@ -17,7 +17,8 @@ namespace DatingTelegramBot;
 public class Program
 {
     public static Dictionary<int, string> UsersMessage = new();
-    public static string[] Languages = { "Русский", "Українська", "English" };
+    public static string[] Languages = { "Русский", "Українська", "English" }; 
+    public static DateTime lastActivityTime = DateTime.UtcNow;
     private static async Task Main(string[] args)
     {
 
@@ -131,7 +132,7 @@ public class Program
         botClient.StartReceiving(
             updateHandler: HandleUpdateAsync,
             pollingErrorHandler: HandlePollingErrorAsync,
-            receiverOptions: receiverOptions,
+            receiverOptions: receiverOptions,            
             cancellationToken: cts.Token
         );
 
@@ -145,11 +146,12 @@ public class Program
 
         async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
+            
             // Only process Message updates: https://core.telegram.org/bots/api#message
             if (update.Message is not { } message)
                 return;
             var chatId = message.Chat.Id;
-
+            if (message.Date <= lastActivityTime) return;
             if (message.Text == null && message.Photo == null)
                 return;
 
