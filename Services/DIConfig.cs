@@ -12,7 +12,7 @@ public static class DIConfig
     public static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
         // Регистрируем фабрику контекста базы данных
-        services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+        services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING")));
 
         // Регистрируем обработчики
         services.AddTransient<StartHandler>();

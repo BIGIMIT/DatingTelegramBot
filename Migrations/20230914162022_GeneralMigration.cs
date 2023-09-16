@@ -5,7 +5,7 @@
 namespace DatingTelegramBot.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class GeneralMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -17,12 +17,17 @@ namespace DatingTelegramBot.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ChatId = table.Column<long>(type: "bigint", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     City = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Age = table.Column<int>(type: "int", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Gender = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PreferGender = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TurnOff = table.Column<bool>(type: "bit", nullable: false),
-                    CurrentHandler = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    CurrentHandler = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Direction = table.Column<bool>(type: "bit", nullable: false),
+                    Language = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -36,7 +41,8 @@ namespace DatingTelegramBot.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Source = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FileId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Path = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -56,7 +62,9 @@ namespace DatingTelegramBot.Migrations
                 {
                     ViewerId = table.Column<int>(type: "int", nullable: false),
                     ViewedId = table.Column<int>(type: "int", nullable: false),
-                    Like = table.Column<bool>(type: "bit", nullable: true)
+                    Like = table.Column<bool>(type: "bit", nullable: true),
+                    Message = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    WasShown = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -92,6 +100,13 @@ namespace DatingTelegramBot.Migrations
                 table: "Users",
                 column: "ChatId",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_UserName",
+                table: "Users",
+                column: "UserName",
+                unique: true,
+                filter: "[UserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserViews_ViewedId",

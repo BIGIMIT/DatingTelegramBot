@@ -83,7 +83,6 @@ namespace DatingTelegramBot.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Language")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
